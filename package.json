@@ -1,0 +1,33 @@
+{
+  "name": "storail",
+  "private": true,
+  "author": "Defa Wang",
+  "license": "GPL-3.0-only",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "pnpm --filter @storail/sdk build && pnpm --dir packages/operator/relay-worker build && pnpm --dir packages/official/website build && pnpm --filter @storail/subgraph build && pnpm --filter @storail/payment-demo-subgraph build",
+    "check": "pnpm --filter @storail/sdk check && pnpm --dir packages/operator/relay-worker check && pnpm --dir packages/official/website check && pnpm --filter @storail/subgraph check && pnpm --filter @storail/payment-demo-subgraph check",
+    "ci:local": "bash scripts/ci/check-local.sh",
+    "build:official:website": "pnpm --dir packages/official/website build",
+    "deploy:official:website": "pnpm --dir packages/official/website deploy:cloudflare",
+    "deploy:arbitrum-sepolia": "pnpm deploy:operator:aeh:arbitrum-sepolia",
+    "deploy:authorized-hub:arbitrum-sepolia": "forge script contracts/script/DeployAuthorizedEventHub.s.sol:DeployAuthorizedEventHub --root contracts --rpc-url arbitrum_sepolia --broadcast",
+    "deploy:authorized-log:arbitrum-sepolia": "pnpm deploy:authorized-hub:arbitrum-sepolia",
+    "deploy:operator:aeh:arbitrum-sepolia": "bash scripts/operator/deploy-aeh-arbitrum-sepolia.sh",
+    "deploy:operator:subgraph:studio": "bash scripts/operator/deploy-public-domain-subgraph-studio.sh",
+    "deploy:operator:relay-worker": "pnpm --dir packages/operator/relay-worker deploy",
+    "deploy:developer:payment-demo-subgraph:studio": "bash scripts/developer/deploy-payment-demo-subgraph-studio.sh",
+    "deploy:payment-demo-subgraph:studio": "pnpm deploy:developer:payment-demo-subgraph:studio",
+    "deploy:subgraph:studio": "pnpm deploy:operator:subgraph:studio",
+    "e2e:arbitrum-sepolia": "bash scripts/e2e/run-arbitrum-sepolia.sh",
+    "e2e:operator:public-domain:arbitrum-sepolia": "bash scripts/e2e/public-domain-and-payment-arbitrum-sepolia.sh",
+    "e2e:developer:sdk:arbitrum-sepolia": "pnpm --filter @storail/sdk e2e:arbitrum-sepolia",
+    "e2e:developer:storage:arbitrum-sepolia": "pnpm --filter @storail/sdk e2e:pinata:arbitrum-sepolia",
+    "test": "forge test --root contracts",
+    "verify:authorized-log:arbitrum-sepolia": "bash scripts/operator/verify-aeh-arbitrum-sepolia.sh"
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "typescript": "^5.6.3"
+  }
+}

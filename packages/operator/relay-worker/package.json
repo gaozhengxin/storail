@@ -1,0 +1,25 @@
+{
+  "name": "@storail/relay-worker",
+  "version": "0.0.0",
+  "private": true,
+  "author": "Defa Wang",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "build": "mkdir -p .wrangler/tmp .wrangler/logs && XDG_CONFIG_HOME=.wrangler wrangler deploy --dry-run",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "deploy": "sh -c 'set -a; [ -f .env ] && . ./.env; set +a; wrangler deploy'",
+    "generate:api-key": "node scripts/generate-api-key.mjs",
+    "test": "mkdir -p .tmp && TMPDIR=$PWD/.tmp pnpm --dir \"$PWD\" exec node --import tsx --test tests/index.test.ts"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260530.0",
+    "tsx": "^4.22.4",
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.7",
+    "wrangler": "^4.36.0"
+  },
+  "dependencies": {
+    "viem": "^2.30.5"
+  }
+}

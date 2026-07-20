@@ -1,0 +1,10 @@
+{
+  "name": "storail",
+  "compatibility_date": "2026-06-06",
+  "pages_build_output_dir": "dist",
+  "vars": {
+    "GITHUB_URL": "https://github.com/gaozhengxin/storail",
+    "DOCS_PATH": "/docs/",
+    "WEBSITE_CANONICAL_URL": "https://storail.pages.dev/"
+  }
+}

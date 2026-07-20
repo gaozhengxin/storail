@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Storail Explorer</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f8f5;
+        --panel: #ffffff;
+        --text: #202124;
+        --muted: #62666d;
+        --line: #d8ddd6;
+        --accent: #0f766e;
+        --danger: #b42318;
+        --code: #f0f2ef;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        color: var(--text);
+        background: var(--bg);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      main {
+        width: min(1120px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 34px 0 64px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--line);
+      }
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        letter-spacing: 0;
+      }
+      h2 {
+        margin: 0 0 12px;
+        font-size: 16px;
+      }
+      a { color: var(--accent); }
+      form {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        margin: 24px 0;
+      }
+      input, button {
+        min-height: 42px;
+        border-radius: 6px;
+        font: inherit;
+      }
+      input {
+        width: 100%;
+        border: 1px solid var(--line);
+        padding: 0 12px;
+        background: #fff;
+        color: var(--text);
+      }
+      button {
+        border: 1px solid var(--accent);
+        padding: 0 16px;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 650;
+        cursor: pointer;
+      }
+      section {
+        border-top: 1px solid var(--line);
+        padding-top: 16px;
+      }
+      .results {
+        display: grid;
+        gap: 12px;
+      }
+      .record {
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+      }
+      .record:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+      .record-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(210px, auto);
+        align-items: flex-start;
+        gap: 18px;
+      }
+      .record-path {
+        margin: 0;
+        overflow-wrap: anywhere;
+        font-weight: 650;
+        line-height: 1.45;
+      }
+      dl {
+        display: grid;
+        grid-template-columns: 110px minmax(0, 1fr);
+        gap: 7px 12px;
+        margin: 12px 0;
+      }
+      dt { color: var(--muted); }
+      dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+      pre {
+        overflow: auto;
+        max-height: 320px;
+        margin: 10px 0 0;
+        padding: 14px;
+        border-radius: 6px;
+        background: var(--code);
+        white-space: pre-wrap;
+      }
+      summary {
+        color: var(--accent);
+        cursor: pointer;
+      }
+      .notice {
+        margin: 0 0 14px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .error { color: var(--danger); }
+      .actions {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+      .action-label {
+        color: var(--muted);
+        line-height: 34px;
+        white-space: nowrap;
+      }
+      .link-button {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 0 12px;
+        background: #fff;
+        text-decoration: none;
+        font-weight: 650;
+        white-space: nowrap;
+      }
+      @media (max-width: 820px) {
+        form { grid-template-columns: 1fr; }
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .record-header { grid-template-columns: 1fr; }
+        .actions { justify-content: flex-start; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Storail Explorer</h1>
+        <a href="/">Storail</a>
+      </header>
+      <form id="prefix-form">
+        <input id="prefix-input" name="prefix" autocomplete="off" placeholder="/0x.../apps/demo/">
+        <button type="submit">Search</button>
+      </form>
+      <p id="status" class="notice"></p>
+      <section>
+        <h2>Files</h2>
+        <div class="results" id="results"></div>
+      </section>
+    </main>
+    <script>
+      const config = {
+        subgraphUrl: window.STORAIL_SUBGRAPH_URL || "https://api.studio.thegraph.com/query/1754335/storail-arbitrum-sepolia/v0.0.3",
+        contentBaseUrl: window.STORAIL_CONTENT_BASE_URL || "https://storail-content-worker.zhengxingao.workers.dev",
+      };
+      const form = document.querySelector("#prefix-form");
+      const input = document.querySelector("#prefix-input");
+      const statusNode = document.querySelector("#status");
+      const resultsNode = document.querySelector("#results");
+
+      const params = new URLSearchParams(location.search);
+      const initialPrefix = params.get("prefix") || params.get("path") || "";
+      input.value = initialPrefix;
+      if (initialPrefix) {
+        searchPrefix(normalizePrefix(initialPrefix));
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const prefix = normalizePrefix(input.value);
+        if (!prefix) return;
+        input.value = prefix;
+        history.replaceState(null, "", `${location.pathname}?prefix=${encodeURIComponent(prefix)}`);
+        searchPrefix(prefix);
+      });
+
+      input.addEventListener("blur", () => {
+        input.value = normalizePrefix(input.value);
+      });
+
+      async function searchPrefix(prefix) {
+        setStatus("Searching...");
+        resultsNode.textContent = "";
+        try {
+          const records = await queryRecords(prefix);
+          if (records.length === 0) {
+            setStatus("No active files found.");
+            return;
+          }
+          renderRecords(sortRecords(records));
+          setStatus(`${records.length} active file${records.length === 1 ? "" : "s"} found.`);
+        } catch (error) {
+          setStatus(error instanceof Error ? error.message : String(error), true);
+        }
+      }
+
+      async function queryRecords(prefix) {
+        const response = await fetch(config.subgraphUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: `query ExplorerRecords($prefix: String!) {
+              storageRecords(first: 100, orderBy: updatedAtBlock, orderDirection: desc, where: { path_starts_with: $prefix, exists: true }) {
+                id pathHash path owner providerId pointer contentHash metadata exists
+                createdBy updatedBy createdAtBlock createdAtTimestamp updatedAtBlock updatedAtTimestamp
+              }
+            }`,
+            variables: { prefix },
+          }),
+        });
+        const body = await response.json();
+        if (!response.ok || body.errors) {
+          throw new Error("Subgraph query failed.");
+        }
+        return body.data.storageRecords;
+      }
+
+      function renderRecords(records) {
+        resultsNode.innerHTML = records.map((record) => {
+          const metadata = parseMetadata(record.metadata);
+          const encrypted = Boolean(metadata.storailEncryption);
+          const contentType = encrypted
+            ? metadata.storailEncryption.plaintextContentType
+            : metadata.contentType || contentTypeFromProvider(record.providerId, record.pointer);
+          const contentUrl = `${config.contentBaseUrl.replace(/\/$/, "")}${record.path}`;
+          const viewable = !encrypted && isViewable(contentType);
+          const metadataJson = escapeHtml(JSON.stringify(metadata, null, 2));
+          const actions = encrypted
+            ? `<span class="action-label">Encrypted</span>`
+            : [
+                viewable ? `<a class="link-button" href="${escapeAttribute(contentUrl)}" target="_blank" rel="noreferrer">Open</a>` : `<span class="action-label">Unsupported</span>`,
+                `<a class="link-button" href="${escapeAttribute(contentUrl)}" download rel="noreferrer">Download</a>`,
+              ].join("");
+          return `<article class="record">
+            <div class="record-header">
+              <p class="record-path">${escapeHtml(record.path)}</p>
+              <div class="actions">${actions}</div>
+            </div>
+            <dl>
+              <dt>Provider</dt><dd>${escapeHtml(record.providerId)}</dd>
+              <dt>Type</dt><dd>${escapeHtml(contentType || "unknown")}</dd>
+              <dt>Block</dt><dd>${escapeHtml(record.updatedAtBlock)}</dd>
+              <dt>Pointer</dt><dd>${escapeHtml(record.pointer)}</dd>
+            </dl>
+            <details>
+              <summary>Metadata</summary>
+              <pre>${metadataJson}</pre>
+            </details>
+          </article>`;
+        }).join("");
+      }
+
+      function sortRecords(records) {
+        return [...records].sort((left, right) => {
+          const byPath = left.path.localeCompare(right.path);
+          if (byPath !== 0) return byPath;
+          return Number(right.updatedAtBlock || 0) - Number(left.updatedAtBlock || 0);
+        });
+      }
+
+      function parseMetadata(value) {
+        if (!value) return {};
+        try {
+          return JSON.parse(value);
+        } catch {
+          return { raw: value };
+        }
+      }
+
+      function contentTypeFromProvider(providerId, pointer) {
+        if (/\.md($|\?)/i.test(pointer)) return "text/markdown";
+        if (/\.html?($|\?)/i.test(pointer)) return "text/html";
+        if (providerId === "markdown") return "text/markdown";
+        return "";
+      }
+
+      function isViewable(contentType) {
+        return /^(image\/|video\/|audio\/|text\/plain|text\/markdown|text\/html|application\/json)/i.test(contentType || "");
+      }
+
+      function normalizePrefix(value) {
+        const trimmed = value.trim();
+        if (!trimmed) return "";
+        return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+      }
+
+      function setStatus(message, isError = false) {
+        statusNode.textContent = message;
+        statusNode.className = isError ? "notice error" : "notice";
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+      }
+
+      function escapeAttribute(value) {
+        return escapeHtml(value);
+      }
+    </script>
+  </body>
+</html>

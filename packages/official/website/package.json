@@ -1,0 +1,19 @@
+{
+  "name": "@storail/official-website",
+  "version": "0.0.0",
+  "private": true,
+  "author": "Defa Wang",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "deploy:dry-run": "sh -c 'set -a; [ -f .env ] && . ./.env; set +a; pnpm build && mkdir -p .wrangler/tmp .wrangler/logs && XDG_CONFIG_HOME=.wrangler wrangler pages deploy dist --project-name storail --dry-run'",
+    "deploy:cloudflare": "sh -c 'set -a; [ -f .env ] && . ./.env; set +a; WEBSITE_CANONICAL_URL=${WEBSITE_CANONICAL_URL:-https://storail.pages.dev/} pnpm build && wrangler pages deploy dist --project-name storail'"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260530.0",
+    "typescript": "^5.6.3",
+    "wrangler": "^4.36.0"
+  }
+}

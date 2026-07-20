@@ -1,0 +1,3 @@
+interface AuthenticatorAttestationResponse {}
+
+interface AuthenticationExtensionsClientOutputs {}

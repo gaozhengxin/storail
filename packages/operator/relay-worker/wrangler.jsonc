@@ -1,0 +1,69 @@
+{
+  "name": "storail-relay-worker",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-31",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "WALLET_LIMITER",
+        "class_name": "WalletLimiter"
+      },
+      {
+        "name": "RELAY_DISPATCHER",
+        "class_name": "RelayDispatcher"
+      },
+      {
+        "name": "API_KEY_USAGE_LIMITER",
+        "class_name": "ApiKeyUsageLimiter"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["WalletLimiter", "RelayDispatcher"]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": ["ApiKeyUsageLimiter"]
+    }
+  ],
+  "vars": {
+    "AEH_ADDRESS": "0x50639896E45165B9D8c420AAC0090F5D6782dA8D",
+    "AEL_ADDRESS": "0x50639896E45165B9D8c420AAC0090F5D6782dA8D",
+    "FORWARDER_ADDRESS": "0xB6152130C2F1aED0C59c6E2348592B931edf9A1d",
+    "RELAYER_IDS": "relay_a,relay_b,relay_c",
+    "RELAY_CHAIN_ID": "421614",
+    "MAX_DEADLINE_SECONDS": "300",
+    "MAX_GAS_LIMIT": "3000000",
+    "MAX_DAILY_REQUESTS": "1000",
+    "MAX_DAILY_GAS_WEI": "100000000000000000",
+    "MAX_WALLET_REQUESTS_PER_FIVE_MINUTES": "10",
+    "MAX_WALLET_REQUESTS_PER_HOUR": "20",
+    "MAX_WALLET_REQUESTS_PER_DAY": "50",
+    "MAX_WALLET_REQUESTS_PER_WEEK": "100",
+    "MAX_PATH_LENGTH": "512",
+    "MAX_PROVIDER_ID_LENGTH": "64",
+    "MAX_POINTER_LENGTH": "512",
+    "MAX_METADATA_LENGTH": "2048",
+    "MAX_APP_PAYLOAD_BYTES": "256",
+    "PAYMENT_DEMO_APP_ID": "0x1d45d846ada9e22be6b901c9a45c548786f9874e9eaa63f8ac83649e19cf533c",
+    "PAYMENT_DEMO_ACTION_INIT_SUPPLY": "0xa24f3a234bf36d98ba4101dc1b94fe041c71cb0c54abb3171f0d3922f48a27c7",
+    "PAYMENT_DEMO_ACTION_TRANSFER": "0xf099cd8bde557814842a3121e8ddfd433a539b8c9f14bf31ebf108d12e6196e9",
+    "DEBOUNCE_TTL_MS": "60000",
+    "RELAYER_RESERVE_FLOOR_WEI": "5000000000000000",
+    "RELAYER_PENDING_TIMEOUT_MS": "180000",
+    "RELAYER_MAX_BROADCAST_ATTEMPTS": "3",
+    "STORAGE_PROVIDER_ID": "pinata",
+    "STORAGE_MAX_UPLOAD_BYTES": "4194304",
+    "PINATA_UPLOAD_URL": "https://uploads.pinata.cloud/v3/files",
+    "PINATA_GATEWAY_BASE_URL": "https://ipfs.io",
+    "API_USAGE_MAX_UNITS_PER_HOUR": "5000",
+    "API_USAGE_MAX_UNITS_PER_DAY": "50000",
+    "API_USAGE_RELAY_BASE_UNITS": "10",
+    "API_USAGE_RELAY_GAS_UNIT_DIVISOR": "100000",
+    "API_USAGE_STORAGE_BASE_UNITS": "100",
+    "API_USAGE_STORAGE_BYTES_PER_UNIT": "1024",
+    "API_USAGE_STORAGE_UNIT_MULTIPLIER": "10"
+  }
+}

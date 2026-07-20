@@ -1,0 +1,81 @@
+type Namespace @entity(immutable: false) {
+  id: ID!
+  owner: Bytes!
+  recordCount: BigInt!
+  writerCount: BigInt!
+  createdAtBlock: BigInt!
+  createdAtTimestamp: BigInt!
+  updatedAtBlock: BigInt!
+  updatedAtTimestamp: BigInt!
+  records: [StorageRecord!]! @derivedFrom(field: "namespace")
+  writerPermissions: [WriterPermission!]! @derivedFrom(field: "namespace")
+  events: [RegistryEvent!]! @derivedFrom(field: "namespace")
+}
+
+type StorageRecord @entity(immutable: false) {
+  id: ID!
+  pathHash: Bytes!
+  path: String!
+  namespace: Namespace!
+  owner: Bytes!
+  providerId: String!
+  pointer: String!
+  contentHash: Bytes!
+  metadata: String!
+  exists: Boolean!
+  createdBy: Bytes!
+  updatedBy: Bytes!
+  createdAtBlock: BigInt!
+  createdAtTimestamp: BigInt!
+  updatedAtBlock: BigInt!
+  updatedAtTimestamp: BigInt!
+  deletedAtBlock: BigInt
+  deletedAtTimestamp: BigInt
+  events: [RegistryEvent!]! @derivedFrom(field: "record")
+}
+
+type WriterPermission @entity(immutable: false) {
+  id: ID!
+  namespace: Namespace!
+  owner: Bytes!
+  domainHash: Bytes!
+  domain: String!
+  writer: Bytes!
+  active: Boolean!
+  grantedAtBlock: BigInt!
+  grantedAtTimestamp: BigInt!
+  updatedAtBlock: BigInt!
+  updatedAtTimestamp: BigInt!
+  events: [RegistryEvent!]! @derivedFrom(field: "writerPermission")
+}
+
+type RegistryEvent @entity(immutable: true) {
+  id: ID!
+  type: RegistryEventType!
+  namespace: Namespace!
+  record: StorageRecord
+  writerPermission: WriterPermission
+  pathHash: Bytes
+  path: String
+  owner: Bytes!
+  actor: Bytes!
+  providerId: String
+  pointer: String
+  contentHash: Bytes
+  metadata: String
+  writer: Bytes
+  domainHash: Bytes
+  domain: String
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+}
+
+enum RegistryEventType {
+  PUBLISHED
+  UPDATED
+  DELETED
+  WRITER_GRANTED
+  WRITER_REVOKED
+}

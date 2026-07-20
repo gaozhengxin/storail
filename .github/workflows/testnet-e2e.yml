@@ -1,0 +1,53 @@
+name: Testnet E2E
+
+on:
+  workflow_dispatch:
+
+jobs:
+  arbitrum-sepolia:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Write e2e env
+        run: |
+          cat > scripts/e2e/.env <<'EOF'
+          PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}
+          ARBITRUM_SEPOLIA_RPC_URL=${{ secrets.ARBITRUM_SEPOLIA_RPC_URL }}
+          ARBITRUM_SEPOLIA_CHAIN_ID=421614
+          RELAY_WORKER_URL=${{ secrets.RELAY_WORKER_URL }}
+          SUBGRAPH_QUERY_URL=${{ secrets.SUBGRAPH_QUERY_URL }}
+          PAYMENT_DEMO_SUBGRAPH_QUERY_URL=${{ secrets.PAYMENT_DEMO_SUBGRAPH_QUERY_URL }}
+          EOF
+
+      - name: Run Arbitrum Sepolia e2e
+        run: pnpm e2e:arbitrum-sepolia
+
+      - name: Upload e2e summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arbitrum-sepolia-e2e
+          path: |
+            codex/deployments/arbitrum-sepolia-e2e-latest.json
+            codex/deployments/arbitrum-sepolia-e2e-stages.json

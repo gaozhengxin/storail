@@ -1,0 +1,11 @@
+codex export-ignore
+codex/** export-ignore
+.codex export-ignore
+.codex/** export-ignore
+.agent export-ignore
+.agent/** export-ignore
+agent export-ignore
+agent/** export-ignore
+.pinata export-ignore
+packages/operator/content-worker export-ignore
+packages/operator/content-worker/** export-ignore

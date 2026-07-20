@@ -1,0 +1,28 @@
+{
+  "name": "@storail/sdk",
+  "version": "0.0.0",
+  "private": true,
+  "author": "Defa Wang",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "e2e:arbitrum-sepolia": "node --import tsx scripts/e2e-arbitrum-sepolia.ts",
+    "e2e:pinata-assets:arbitrum-sepolia": "node --import tsx scripts/e2e-pinata-assets-arbitrum-sepolia.ts",
+    "e2e:pinata-markdown:arbitrum-sepolia": "node --import tsx scripts/e2e-pinata-markdown-arbitrum-sepolia.ts",
+    "e2e:pinata:arbitrum-sepolia": "node --import tsx scripts/e2e-pinata-arbitrum-sepolia.ts",
+    "e2e:storacha:arbitrum-sepolia": "node --import tsx scripts/e2e-storacha-arbitrum-sepolia.ts",
+    "test": "mkdir -p .tmp && TMPDIR=.tmp node --import tsx --test tests/**/*.test.ts"
+  },
+  "dependencies": {
+    "@storacha/client": "^2.1.4",
+    "viem": "^2.30.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.22.4",
+    "typescript": "^5.6.3"
+  }
+}

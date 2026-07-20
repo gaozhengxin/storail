@@ -1,0 +1,21 @@
+{
+  "name": "@storail/payment-demo-subgraph",
+  "version": "0.0.0",
+  "private": true,
+  "author": "Defa Wang",
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "codegen": "graph codegen subgraph.yaml",
+    "build": "graph build subgraph.yaml",
+    "check": "pnpm codegen && pnpm build",
+    "test": "graph test"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.97.1",
+    "@graphprotocol/graph-ts": "^0.36.0"
+  },
+  "devDependencies": {
+    "assemblyscript": "0.19.10",
+    "matchstick-as": "^0.6.0"
+  }
+}

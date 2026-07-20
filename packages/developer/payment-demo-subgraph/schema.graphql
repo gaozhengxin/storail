@@ -1,0 +1,53 @@
+type PaymentState @entity(immutable: false) {
+  id: ID!
+  app: Bytes!
+  inboxPath: String!
+  initialized: Boolean!
+  initInstruction: PaymentInstruction
+  totalSupply: BigInt!
+  instructionCount: BigInt!
+  acceptedCount: BigInt!
+  ignoredCount: BigInt!
+  updatedAtBlock: BigInt!
+  updatedAtTimestamp: BigInt!
+  accounts: [PaymentAccount!]! @derivedFrom(field: "state")
+  instructions: [PaymentInstruction!]! @derivedFrom(field: "state")
+}
+
+type PaymentAccount @entity(immutable: false) {
+  id: ID!
+  state: PaymentState!
+  address: Bytes!
+  balance: BigInt!
+  updatedAtBlock: BigInt!
+  updatedAtTimestamp: BigInt!
+}
+
+type PaymentInstruction @entity(immutable: true) {
+  id: ID!
+  state: PaymentState!
+  sequence: BigInt!
+  type: PaymentInstructionType!
+  actor: Bytes!
+  recipient: Bytes
+  from: Bytes
+  to: Bytes
+  amount: BigInt!
+  accepted: Boolean!
+  ignoredReason: String
+  path: String!
+  providerId: String!
+  pointer: String!
+  contentHash: Bytes!
+  metadata: String!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+}
+
+enum PaymentInstructionType {
+  INIT_SUPPLY
+  TRANSFER
+  UNKNOWN
+}
